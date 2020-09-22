@@ -90,6 +90,7 @@ int multiplicative_inverse(int a, int n)
     return p.x;
 }
 
+
 // ============================================================
 
 
@@ -103,6 +104,7 @@ void scheme1(int e, int d, int n, int M)
 
     printf("C1=%d, M1=%d\n", C1, M1);
 }
+
 void scheme2(int e, int d, int n, int M)
 {
     const int C2 = rsa(M, d, n);
@@ -116,7 +118,7 @@ void scheme2(int e, int d, int n, int M)
  *   1. Take two first digits and multiply them (if second digit is null - take first digit only)
  *   2. Take last digit of the result
  *   3. Multiply by next digit (if next digit isn't null)
- *   5. Repeat steps 2 and 3 to the last digit inclusive
+ *   4. Repeat steps 2 and 3 to the last digit inclusive
  */
 int stupid_hash(int m)
 {
@@ -188,6 +190,7 @@ void task_1_and_2()
     printf("task2: ");
     scheme2(e, d, n, M);
 }
+
 void task3()
 {
     puts("----------------- task #3 -----------------");
@@ -218,6 +221,7 @@ void task3()
     printf("Decrypted D=%d\n", decD);
     printf("Decrypted D = hash, %d = %d\n", decD, stupid_hash(M));
 }
+
 void task4(int alpha, int Xa, int Xb, int q)
 {
     puts("---------------- task #4 -----------------");
@@ -230,6 +234,7 @@ void task4(int alpha, int Xa, int Xb, int q)
     const int Kb = modulo_power(Ya, Xb, q);
     printf("Ka = Kb, %d = %d\n", Ka, Kb);
 }
+
 void task5(int alpha, int Xa, int Xb, int Xz, int q)
 {
     puts("---------------- task #5 -----------------");
@@ -248,12 +253,14 @@ void task5(int alpha, int Xa, int Xb, int Xz, int q)
     printf("Kb = Kzb, %d = %d\n", Kb, Kzb);
 }
 
+
 void lab_rab1()
 {
     task_1_and_2();
     puts("\n");
     task3();
 }
+
 void lab_rab2()
 {
     const int alpha = 7;
