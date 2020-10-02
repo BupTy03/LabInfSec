@@ -90,6 +90,10 @@ int multiplicative_inverse(int a, int n)
     return p.x;
 }
 
+int euler(int p, int q)
+{
+    return (p - 1) * (q - 1);
+}
 
 // ============================================================
 
@@ -173,7 +177,7 @@ void task_1_and_2()
     const int M = 14;
 
     const int n = p * q;
-    const int z = (p - 1) * (q - 1);
+    const int z = euler(p, q);
     const int e = multiplicative_inverse(d, z);
 
     if(e == 0)
@@ -201,7 +205,7 @@ void task3()
     const int d = 17;
 
     const int n = p * q;
-    const int z = (p - 1) * (q - 1);
+    const int z = euler(p, q);
     const int e = multiplicative_inverse(d, z);
     if(e == 0)
     {
