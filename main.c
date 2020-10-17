@@ -2,16 +2,13 @@
 #include <assert.h>
 
 
-#define MAX_DIGITS_COUNT 20
+#define MAX_DIGITS_COUNT 19
 
 
 /*
  * Required algorithms
  */
-int modulo_multiply(int a, int b, int m)
-{
-    return (a * b) % m;
-}
+int modulo_multiply(int a, int b, int m) { return (a * b) % m; }
 
 int modulo_power(int x, int n, int m)
 {
@@ -40,10 +37,7 @@ int modulo_power(int x, int n, int m)
 }
 
 // rsa is a modulo_power(message, key, n): message^key mod n
-int rsa(int message, int key, int n)
-{
-    return modulo_power(message, key, n);
-}
+int rsa(int message, int key, int n) { return modulo_power(message, key, n); }
 
 // xa + yb = gcd(a, b)
 // xa = gcd(a, b) - yb
@@ -90,10 +84,7 @@ int multiplicative_inverse(int a, int n)
     return p.x;
 }
 
-int euler(int p, int q)
-{
-    return (p - 1) * (q - 1);
-}
+int euler(int p, int q) { return (p - 1) * (q - 1); }
 
 // ============================================================
 
@@ -127,41 +118,34 @@ void scheme2(int e, int d, int n, int M)
 int stupid_hash(int m)
 {
     // m must have at least 2 digits
-    assert(m > 9);
+    if(m < 10) return m;
 
-    char digits[MAX_DIGITS_COUNT];
+    // filling in the array in form:
+    // digits = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,2,3] (for m = 123)
+    int digits[MAX_DIGITS_COUNT] = {0};
     int d = MAX_DIGITS_COUNT - 1;
     while (m > 0)
     {
-        digits[d] = m % 10;
+        digits[d] = (m % 10);
 
         // if digit is 0 replace by 1
-        if(digits[d] == 0)
-            digits[d] = 1;
+        if(digits[d] == 0) digits[d] = 1;
 
         m /= 10;
         --d;
     }
 
-    // move to first digit
+    // move index d to the first digit
     ++d;
 
-    const int firstDigit = digits[d];
-    const int secondDigit = digits[d + 1];
-    int result = (firstDigit * secondDigit) % 10;
-    d += 2;
-    while (d < MAX_DIGITS_COUNT)
+    int result = 1;
+    for (; d < MAX_DIGITS_COUNT; ++d)
     {
-        const int mul = result * digits[d];
+        result *= digits[d];
 
-        // if second digit is null - take first
-        const int nextResult = mul % 10;
-        if(nextResult != 0)
-            result = nextResult;
-        else
-            result = mul / 10;
-
-        ++d;
+        // if last digit is null - take first
+        const int lastDigit = result % 10;
+        result = (lastDigit == 0) ? (result / 10) : lastDigit;
     }
 
     return result;
