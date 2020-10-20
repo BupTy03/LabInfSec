@@ -143,9 +143,10 @@ int stupid_hash(int m)
     {
         result *= digits[d];
 
-        // if last digit is null - take first
-        const int lastDigit = result % 10;
-        result = (lastDigit == 0) ? (result / 10) : lastDigit;
+        // if second digit is zero - take first
+        const int firstDigit = result / 10;
+        const int secondDigit = result % 10;
+        result = (secondDigit == 0) ? firstDigit : secondDigit;
     }
 
     return result;
