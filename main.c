@@ -5,11 +5,10 @@
 #define MAX_DIGITS_COUNT 19
 
 
-/*
- * Required algorithms
- */
+// Умножение по модулю
 int modulo_multiply(int a, int b, int m) { return (a * b) % m; }
 
+// Быстрое возведение в степень по модулю (возвести x в степень n по модулю m)
 int modulo_power(int x, int n, int m)
 {
     assert(n >= 0);
@@ -36,62 +35,116 @@ int modulo_power(int x, int n, int m)
     return result;
 }
 
-// rsa is a modulo_power(message, key, n): message^key mod n
+// rsa - это возведение message в степень key по модулю n
 int rsa(int message, int key, int n) { return modulo_power(message, key, n); }
 
-// xa + yb = gcd(a, b)
-// xa = gcd(a, b) - yb
-// if gcd(a, b) = 1 then xa = 1 - yb -> xa = 1 mod b
+
 typedef struct extended_gcd_result_s
 {
-    int x;
-    int gcd;
+    int x;   // коэффициент x из теоремы Безу: xa + yb = НОД(a, b)
+    int gcd; // НОД(a, b)
 } extended_gcd_result;
 
+// Расширенный алгоритм Евклида
 extended_gcd_result extended_gcd(int a, int b)
 {
     int x0 = 1;
     int x1 = 0;
     while (b != 0)
     {
-        const int qr1 = a / b;
-        const int qr2 = a % b;
+        const int quotient = a / b;
+        const int remainder = a % b;
 
-        const int x2 = x0 - qr1 * x1;
+        const int x2 = x0 - quotient  * x1;
         x0 = x1;
         x1 = x2;
         a = b;
-        b = qr2;
+        b = remainder;
     }
 
     extended_gcd_result r = {x0, a};
     return r;
 }
 
-int multiplicative_inverse(int a, int n)
+/*
+ * Находит число обратное к a по модулю b.
+ *
+ * Из теоремы Безу, мы знаем, что xa + yb = gcd(a, b)
+ * поэтому xa = gcd(a, b) - yb
+ *
+ * Если gcd(a, b) = 1, то xa = 1 - yb
+ *
+ * Поэтому произведение x и a равно 1 плюс некоторое кратное b,
+ * или, иными словами: xa = 1 mod b
+ *
+ * Два числа, произведение которых равно 1,
+ * являются взаимно обратными относительно умножения.
+ *
+ * Поскольку a и b - взаимно простые числа и их gcd(a, b) = 1
+ * значит x является обратным к a по модулю b.
+*/
+int multiplicative_inverse(int a, int b)
 {
-    const extended_gcd_result p = extended_gcd(a, n);
+    const extended_gcd_result p = extended_gcd(a, b);
 
-    // if gcd(a, b) != 1
-    // then we couldn't find the multiplicative inverse
-    // and return zero
+    // если gcd(a, b) != 1 значит числа a и b не взаимно простые
+    // в таком случае вернём 0
     if(p.gcd != 1)
         return 0;
 
     if(p.x < 0)
-        return p.x + n;
+        return p.x + b;
 
     return p.x;
 }
 
+// Функция Эйлера
 int euler(int p, int q) { return (p - 1) * (q - 1); }
 
-// ============================================================
-
-
 /*
- * Tasks
+ *   Простой и тупой алгоритм хеширования:
+ *   1. Берём два числа и перемножаем их (если вторая цифра 0 - берём первую)
+ *   2. Берём последнюю цифру от результата
+ *   3. Перемножаем на следующую цифру числв (если следующая цифра - не ноль)
+ *   4. Повторяем шаги 2 и 3 до последней цивры числа включительно
  */
+int stupid_hash(int m)
+{
+    // m должен содержать минимум 2 цифры
+    if(m < 10) return m;
+
+    // заполняем массив в виде:
+    // digits = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,2,3] (для m = 123)
+    int digits[MAX_DIGITS_COUNT] = {0};
+    int d = MAX_DIGITS_COUNT - 1;
+    while (m > 0)
+    {
+        digits[d] = (m % 10);
+
+        if(digits[d] == 0) digits[d] = 1;
+
+        m /= 10;
+        --d;
+    }
+
+    // перемещаем индекс d к первой цифре числа
+    ++d;
+
+    int result = 1;
+    for (; d < MAX_DIGITS_COUNT; ++d)
+    {
+        result *= digits[d];
+
+        const int firstDigit = result / 10;
+        const int secondDigit = result % 10;
+
+        result = (secondDigit == 0) ? firstDigit : secondDigit;
+    }
+
+    return result;
+}
+
+// Схема шифрования 1
 void scheme1(int e, int d, int n, int M)
 {
     const int C1 = rsa(M, e, n);
@@ -100,56 +153,13 @@ void scheme1(int e, int d, int n, int M)
     printf("C1=%d, M1=%d\n", C1, M1);
 }
 
+// Схема шифрования 2
 void scheme2(int e, int d, int n, int M)
 {
     const int C2 = rsa(M, d, n);
     const int M1 = rsa(C2, e, n);
 
     printf("C2=%d, M1=%d\n", C2, M1);
-}
-
-/*
- *   Simple and stupid hash algorithm:
- *   1. Take two first digits and multiply them (if second digit is null - take first digit only)
- *   2. Take last digit of the result
- *   3. Multiply by next digit (if next digit isn't null)
- *   4. Repeat steps 2 and 3 to the last digit inclusive
- */
-int stupid_hash(int m)
-{
-    // m must have at least 2 digits
-    if(m < 10) return m;
-
-    // filling in the array in form:
-    // digits = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,2,3] (for m = 123)
-    int digits[MAX_DIGITS_COUNT] = {0};
-    int d = MAX_DIGITS_COUNT - 1;
-    while (m > 0)
-    {
-        digits[d] = (m % 10);
-
-        // if digit is 0 replace by 1
-        if(digits[d] == 0) digits[d] = 1;
-
-        m /= 10;
-        --d;
-    }
-
-    // move index d to the first digit
-    ++d;
-
-    int result = 1;
-    for (; d < MAX_DIGITS_COUNT; ++d)
-    {
-        result *= digits[d];
-
-        // if second digit is zero - take first
-        const int firstDigit = result / 10;
-        const int secondDigit = result % 10;
-        result = (secondDigit == 0) ? firstDigit : secondDigit;
-    }
-
-    return result;
 }
 
 void task_1_and_2()
@@ -242,7 +252,7 @@ void task5(int alpha, int Xa, int Xb, int Xz, int q)
     printf("Kb = Kzb, %d = %d\n", Kb, Kzb);
 }
 
-
+// Лабораторная работа 1
 void lab_rab1()
 {
     task_1_and_2();
@@ -250,6 +260,7 @@ void lab_rab1()
     task3();
 }
 
+// Лабораторная работа 2
 void lab_rab2()
 {
     const int alpha = 7;
