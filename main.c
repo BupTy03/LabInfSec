@@ -166,10 +166,10 @@ void task_1_and_2()
 {
     puts("------------- tasks #1 and #2 --------------");
 
-    const int p = 3;
+    const int p = 7;
     const int q = 11;
     const int d = 7;
-    const int M = 14;
+    const int M = 8;
 
     const int n = p * q;
     const int z = euler(p, q);
@@ -194,10 +194,10 @@ void task3()
 {
     puts("----------------- task #3 -----------------");
 
-    const int M = 947829;
+    const int M = 269;
     const int p = 7;
     const int q = 11;
-    const int d = 17;
+    const int d = 7;
 
     const int n = p * q;
     const int z = euler(p, q);
@@ -263,14 +263,21 @@ void lab_rab1()
 // Лабораторная работа 2
 void lab_rab2()
 {
-    const int alpha = 7;
-    const int q = 71;
-    const int Xa = 5;
-    const int Xb = 12;
-    const int Xz = 3;
+    // Задание 4
+    int alpha = 3;
+    int q = 47;
+    int Xa = 8;
+    int Xb = 10;
 
     task4(alpha, Xa, Xb, q);
     puts("\n");
+
+    // Задание 5
+    alpha = 10;
+    q = 19;
+    Xa = 4;
+    Xb = 8;
+    int Xz = 2;
     task5(alpha, Xa, Xb, Xz, q);
 }
 
